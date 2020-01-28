@@ -1,6 +1,5 @@
 import os
 import sys
-os.chdir("C:\\Users\\popov\\Desktop\\python")
 log = input('login: ')
 password = input('password: ')
 def login(login, password):
