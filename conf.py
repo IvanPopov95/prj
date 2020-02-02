@@ -1,63 +1,56 @@
 import sys
 import sqlite3
 
-conn = sqlite3.connect("mydatabase.db")
-cursor = conn.cursor() 
-
-
-log = input('login: ')
-password = input('password: ')
-
 
 def password_check(log, password):
-    cursor.execute("""SELECT password FROM users WHERE login = ?""", log.split())
+    cursor.execute("""SELECT password FROM users WHERE login = ?""", (log,))
     res = cursor.fetchone()
-    i = res[0]
-    return i == int(password)
-        
+    return res[0] == password
+    
 
-def change_id(id):
-    if id == 0:
-        cursor.execute("""UPDATE users SET id = 1 WHERE login = ?""", log.split())
+def change_islogin(log):
+    islogin = islogin_select(log)
+    if islogin == 0:
+        cursor.execute("""UPDATE users SET islogin = 1 WHERE login = ?""", (log,))
     else:
-        cursor.execute("""UPDATE users SET id = 0 WHERE login = ?""", log.split())
+        cursor.execute("""UPDATE users SET islogin = 0 WHERE login = ?""", (log,))
     conn.commit()
 
 
-def dict_of_data(log, password):
-    cursor.execute("""SELECT id FROM users WHERE login = ?""", log.split())
+def islogin_select(log):
+    cursor.execute("""SELECT islogin FROM users WHERE login = ?""", (log,))
     res = cursor.fetchone()
-    d = {'login': log, 'password': password, 'id': res[0]}
-    return d
+    return res[0]
 
 
-def login(log, password):
+def login():
+    log = input('login: ')
+    password = input('password: ')
     if password_check(log, password):
-        a = dict_of_data(log, password)
-        if a['id'] == 0:
-            change_id(0)
+        islogin = islogin_select(log)
+        if islogin == 0:
+            change_islogin(log)
         else:
-            print ('mistake')
+            print('You already login')
     else:
-        print ('Wrong Password')
+        print('Wrong Password')
 
 
-def logout(log, password):
-    if password_check(log, password):
-        a = dict_of_data(log, password)
-        if a['id'] == 1:
-            change_id(1)
-        else:
-            print ('mistake')
+def logout():
+    log = input('login: ')
+    islogin = islogin_select(log)
+    if islogin == 1:
+        change_islogin(log)
     else:
-        print ('Wrong Password')
+        print('You are not in system')
 
-
-def main():
-    if sys.argv[1] == 'login':
-        login(log, password)
-    if sys.argv[1] == 'logout':
-        logout(log, password)
-    
+  
 if __name__ == '__main__':
-    main()       
+    cursor = conn.cursor() 
+    conn = sqlite3.connect("mydatabase.db")
+
+    if sys.argv[1] == 'login':
+        login()
+    if sys.argv[1] == 'logout':
+        logout()
+    conn.close()     
