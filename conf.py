@@ -1,52 +1,53 @@
-import os
 import sys
-log = input('login: ')
-password = input('password: ')
-def login(login, password):
-    with open ('users.txt') as f, open('users2.txt','w') as g: 
-        for line in f:
-            line = line.split()
-            if line[0] == login:
-                if line[2] == '1':
-                    g.close()
-                    os.remove('users2.txt')
-                    print('mistake')
-                    break
-                else:
-                    line[2] = '1'                  
-                    g.write('   '.join(line)+ '\n')
-            else:
-                g.write('   '.join(line) + '\n')
-        if os.path.isfile('users2.txt'):
-            g.close()
-            f.close()
-            os.remove('users.txt')
-            os.rename('users2.txt', 'users.txt')
-def logout(login, password):
-    with open ('users.txt') as f, open('users2.txt','w') as g: 
-        for line in f:
-            line = line.split()
-            if line[0] == login:
-                if line[2] == '0':
-                    g.close()
-                    os.remove('users2.txt')
-                    print('mistake')
-                    break
-                else:
-                    line[2] = '0'                  
-                    g.write('   '.join(line)+ '\n')
-            else:
-                g.write('   '.join(line) + '\n')
-        if os.path.isfile('users2.txt'):
-            g.close()
-            f.close()
-            os.remove('users.txt')
-            os.rename('users2.txt', 'users.txt')
-def main():
-    if sys.argv[1] == 'login':
-        login(log, password)
-    if sys.argv[1] == 'logout':
-        logout(log, password)
-if __name__ == '__main__':
-    main()
+import sqlite3
 
+
+def password_check(log, password):
+    cursor.execute("""SELECT password FROM users WHERE login = ?""", (log,))
+    res = cursor.fetchone()
+    return res[0] == password
+    
+
+def log_in(log):
+    res = (cursor.execute("""UPDATE users SET is_logged_in = 1
+WHERE login = ? AND is_logged_in = 0""", (log,)).rowcount)
+    conn.commit()
+    return res > 0
+    
+
+def log_out(log):
+    res = (cursor.execute("""UPDATE users SET is_logged_in = 0
+WHERE login = ? AND is_logged_in = 1""", (log,)).rowcount)
+    conn.commit()
+    return res > 0
+
+
+def login_internal(log, password):
+    if password_check(log, password):
+        if not log_in(log):
+            return 'You already login'
+    else:
+        return 'Wrong Password'
+            
+
+def login():
+    log = input('login: ')
+    password = input('password: ')
+    if login_internal(log, password) is not None:
+        print(login_internal(log, password))
+
+
+def logout():
+    log = input('login: ')
+    if not log_out(log):
+        print('You are not in system')
+
+
+if __name__ == '__main__':
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor() 
+    if sys.argv[1] == 'login':
+        login()
+    if sys.argv[1] == 'logout':
+        logout()
+    conn.close()
