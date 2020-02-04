@@ -64,6 +64,14 @@ VALUES(?, ?, ?, ?, ?, ?)""", (log, name, surname, email, password, 1))
     conn.commit()
 
 
+def name_surname_change():
+    log = input('login: ')
+    name = input('new name: ')
+    surname = input('new surname: ')
+    cursor.execute("""UPDATE users SET name = ?, surname = ? 
+                   WHERE login = ?""", (name, surname, log))
+    conn.commit()
+
 if __name__ == '__main__':
     conn = sqlite3.connect("mydatabase.db")
     cursor = conn.cursor() 
@@ -73,4 +81,6 @@ if __name__ == '__main__':
         logout()
     if sys.argv[1] == 'registration':
         registration()
+    if sys.argv[1] == 'change':
+        name_surname_change()
     conn.close()
