@@ -53,7 +53,11 @@ def email_check(email):
 def registration():
     log = input('login: ')
     name = input('name: ')
+    if len(name) == 0:
+        name = ''
     surname = input('surname: ')
+    if len(surname) == 0:
+        surname = ''
     email = input('Email: ')
     while not email_check(email):
         print('Email is not correct')
@@ -79,7 +83,7 @@ if __name__ == '__main__':
         login()
     if sys.argv[1] == 'logout':
         logout()
-    if sys.argv[1] == 'registration':
+    if sys.argv[1] == 'reg':
         registration()
     if sys.argv[1] == 'change':
         name_surname_change()
