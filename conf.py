@@ -52,6 +52,8 @@ def email_check(email):
 
 def registration():
     log = input('login: ')
+    while not login_exist(log):
+        log = input('This login is already used. Login: ')
     name = input('name: ')
     if len(name) == 0:
         name = ''
@@ -75,6 +77,13 @@ def name_surname_change():
     cursor.execute("""UPDATE users SET name = ?, surname = ? 
                    WHERE login = ?""", (name, surname, log))
     conn.commit()
+
+
+def login_exist(log):
+    cursor.execute("""SELECT * FROM users WHERE login = ?""", (log,))
+    res = cursor.fetchone()
+    return res is None
+
 
 if __name__ == '__main__':
     conn = sqlite3.connect("mydatabase.db")
